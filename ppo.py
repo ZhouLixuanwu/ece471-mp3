@@ -36,7 +36,10 @@ class ActorNetwork(nn.Module):
         super(ActorNetwork, self).__init__()
         # [Task 3] TODO: Write your code here to implement the type of layers that you will need in forward()
         # [Your Code]
-        #a neural network of three fully-connected layers (connected with ReLU) and a softmax layer directing to the output.
+
+        # We use nn.Sequential to combine all the layers together, which is a neural network of three fully-connected layers 
+        # (connected with ReLU) and a softmax layer directing to the output.
+
         self.modelActor = nn.Sequential(
           nn.Linear(input_size,hidden_size),
           nn.ReLU(),
@@ -51,6 +54,8 @@ class ActorNetwork(nn.Module):
         output = None
         # [Task 3] TODO: Write your code here to implement the forward pass of the actor network
         # [Your Code]
+
+        # The output is the last layer of the network with the given input
         output = self.modelActor(input_)
         return output
 
@@ -60,6 +65,8 @@ class CriticNetwork(nn.Module):
         super(CriticNetwork, self).__init__()
         # [Task 3] TODO: Write your code here to implement the type of layers that you will need in forward()
         # [Your Code]
+
+        # the final layer of Critic outputs a real number (so nosoftmax layer is needed).
         self.modelCritic = nn.Sequential(
           nn.Linear(input_size,hidden_size),
           nn.ReLU(),
@@ -281,6 +288,7 @@ class PPO:
                     # [Task 3] TODO: Given loss, write you code here to update model parameters (backward propagation)
                     # [Your Code]
                     
+                    # We have to earase the accumulated gradient before updating the model parameters by the given loss
                     self.optimizer.zero_grad()
                     loss.backward()
                     self.optimizer.step()

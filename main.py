@@ -19,7 +19,9 @@ def test_env(env, function_name):
     """
     # [Your Code]
 
+    #Call the step function step() by providing a vertical scaling-up action
     state_one, _, _ = env.step(function_name,{'vertical':128, 'horizontal':0})
+    #Step() returns three parts, state, reward, done. We just print the received current state
     print(state_one)
 
     state_two, _, _ = env.step(function_name,{'vertical':0,'horizontal':1})
@@ -42,8 +44,9 @@ def generate_traces(env, function_name):
         # [Task 1.2] Hint: Check out the step() function in serverless_env.py
         # [Your Code]
 
+        #the flag is a random generator to determine which of vertical_action and horizontal_action to be zero
         flag = random(1)
-        if flag:
+        if flag==1:
             vertical_action, horizontal_action = 0, random(257)
         else:
             vertical_action, horizontal_action = random(257), 0
@@ -122,9 +125,13 @@ def main():
     # [Task 1.1] TODO: Write your code here to reset the environment and print the initial state
     # [Task 1.1] Hint: Check out serverless_env.py
     # [Your Code]
+
+    # We initialize the environment by conducting the SimEnvironment
     env = SimEnvironment()
 
     function_name = env.get_function_name()
+    
+    # Reset the environment and print the initial state
     env.reset(function_name)
     print( env.get_rl_states(env.num_containers, env.arrival_rate) )
 
@@ -164,7 +171,7 @@ def main():
 
 
 
-        
+
     elif agent_type == 'PG':
         agent = pg.PG(env, function_name)
     elif agent_type == 'DQN':
