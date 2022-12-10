@@ -155,6 +155,7 @@ def generate_traces_trained(env, function_name, agent, arrival_rate):
             action_to_execute['vertical'] = -VERTICAL_SCALING_STEP
 
         next_state, reward, _ = env.step(function_name, action_to_execute)
+        next_state = next_state[:NUM_STATES]
 
 
 
