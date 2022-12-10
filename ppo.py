@@ -56,6 +56,8 @@ class ActorNetwork(nn.Module):
         # [Your Code]
 
         # The output is the last layer of the network with the given input
+        if not torch.is_tensor(input_):
+            input_ = torch.tensor(input_, dtype=torch.float)
         output = self.modelActor(input_)
         return output
 
@@ -81,6 +83,8 @@ class CriticNetwork(nn.Module):
         output = None
         # [Task 3] TODO: Write your code here to implement the forward pass of the critic network
         # [Your Code]
+        if not torch.is_tensor(input_):
+            input_ = torch.tensor(input_, dtype=torch.float)
         output = self.modelCritic(input_)
         return output
 
@@ -113,8 +117,8 @@ class PPO:
         self.state_size = NUM_STATES
         self.action_size = NUM_ACTIONS
 
-        self.actor = ActorNetwork(self.state_size, HIDDEN_SIZE, self.action_size)
-        self.critic = CriticNetwork(self.state_size, HIDDEN_SIZE, 1)
+        self.actor = ActorNetwork(self.state_size, HIDDEN_SIZE, self.action_size).float()
+        self.critic = CriticNetwork(self.state_size, HIDDEN_SIZE, 1).float()
 
         self.optimizer = torch.optim.Adam(list(self.actor.parameters()) + list(self.critic.parameters()), lr=LR)
 

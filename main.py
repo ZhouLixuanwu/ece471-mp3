@@ -1,11 +1,12 @@
-import random
 from serverless_env import SimEnvironment
-from pg import pg
+# from pg import pg
 from ppo import PPO
-from dqn import dqn
+# from dqn import dqn
 from util import convert_state_action_to_reward
 from util import convert_state_action_to_reward_overprovisioning
 from util import convert_state_action_to_reward_tightpacking
+
+import numpy as np
 
 
 def test_env(env, function_name):
@@ -45,11 +46,11 @@ def generate_traces(env, function_name):
         # [Your Code]
 
         #the flag is a random generator to determine which of vertical_action and horizontal_action to be zero
-        flag = random(1)
+        flag = np.random.binomial(1, .5)
         if flag==1:
-            vertical_action, horizontal_action = 0, random(257)
+            vertical_action, horizontal_action = 0, np.random.randint(257)
         else:
-            vertical_action, horizontal_action = random(257), 0
+            vertical_action, horizontal_action = np.random.randint(257), 0
 
         action = {'vertical':vertical_action,'horizontal':horizontal_action}
         next_state, reward, _ = env.step(function_name, action)
@@ -164,18 +165,15 @@ def main():
     - (Optional) Complete the skeleton functions that we provided in the dqn/
     """
     # init an RL agent
-    agent_type = 'PPO'
-    agent = None
-    if agent_type == 'PPO':
-        agent = PPO(env, function_name)
+    agent = PPO(env, function_name)
 
 
 
 
-    elif agent_type == 'PG':
-        agent = pg.PG(env, function_name)
-    elif agent_type == 'DQN':
-        agent = dqn.DQN(env, function_name)
+    # elif agent_type == 'PG':
+    #     agent = pg.PG(env, function_name)
+    # elif agent_type == 'DQN':
+    #     agent = dqn.DQN(env, function_name)
     print('RL agent initialized!')
     print('>>>>>>>>>> End of Task 2 <<<<<<<<<<\n')
 
