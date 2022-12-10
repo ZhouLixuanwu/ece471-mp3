@@ -2,9 +2,10 @@ from serverless_env import SimEnvironment
 # from pg import pg
 from ppo import PPO
 # from dqn import dqn
-from util import convert_state_action_to_reward
-from util import convert_state_action_to_reward_overprovisioning
-from util import convert_state_action_to_reward_tightpacking
+# from util import convert_state_action_to_reward
+# from util import convert_state_action_to_reward_overprovisioning
+# from util import convert_state_action_to_reward_tightpacking
+from util import *
 
 import numpy as np
 
@@ -55,8 +56,8 @@ def generate_traces(env, function_name):
         action = {'vertical':vertical_action,'horizontal':horizontal_action}
         next_state, reward, _ = env.step(function_name, action)
         
-        print('Average CPU Util:', next_state[0])
-        print('SLO Preservation:', next_state[1])
+        # print('Average CPU Util:', next_state[0])
+        # print('SLO Preservation:', next_state[1])
 
         # print to file
         file.write(','.join([str(j) for j in state]) + ',' + str(vertical_action) + ',' + str(horizontal_action) +
@@ -65,6 +66,117 @@ def generate_traces(env, function_name):
 
     file.close()
     print('Trajectory generated!')
+
+
+
+
+def generate_traces_trained(env, function_name, agent, arrival_rate):
+
+    #your policy in 1.2
+    env.reset(function_name)
+    state = env.reset_arrival_rate(function_name,arrival_rate)
+
+    num_steps = 1000
+
+    file = open("traces_your_policy.csv", "w")
+    file.write('avg_cpu_util,slo_preservation,total_cpu_shares,cpu_shares_others,num_containers,arrival_rate,' +
+               'vertical_scaling,horizontal_action,reward\n')
+
+    total_reward = 0 
+    for i in range(num_steps):
+        
+        # [Task 4.3] TODO:here use the same code you use for Task 1.2
+        # [Your Code]
+
+
+        #the flag is a random generator to determine which of vertical_action and horizontal_action to be zero
+        flag = np.random.binomial(1, .5)
+        if flag==1:
+            vertical_action, horizontal_action = 0, np.random.randint(257)
+        else:
+            vertical_action, horizontal_action = np.random.randint(257), 0
+
+        action = {'vertical':vertical_action,'horizontal':horizontal_action}
+        next_state, reward, _ = env.step(function_name, action)
+
+
+
+        total_reward += reward
+        # print to file
+        file.write(','.join([str(j) for j in state]) + ',' + str(vertical_action) + ',' + str(horizontal_action) +
+                   ',' + str(reward) + '\n')
+        state = next_state
+
+    file.write('total_reward: ' + str(total_reward))
+
+    print("your policy total reward: ", total_reward)
+    file.close()
+
+
+    #RL  policy  
+    #env.reset(function_name)
+    #state = env.reset_arrival_rate(function_name,arrival_rate)[:NUM_STATES]
+    state = state[:NUM_STATES]
+
+    file = open("traces_RL.csv", "w")
+    file.write('avg_cpu_util,slo_preservation,total_cpu_shares,cpu_shares_others,num_containers,arrival_rate,' +
+               'vertical_scaling,horizontal_action,reward\n')
+    
+    total_reward = 0 
+
+    for i in range(num_steps):
+
+        # [Task 4.3] TODO:here use the trained RL agent to generate the action for each step
+        # hint: check calc_action in class PPO
+        # [Your Code]
+
+
+        action, _ = agent.calc_action(state)
+
+        action_to_execute = {
+            'vertical': 0,
+            'horizontal': 0,
+        }
+
+        if action == 0:
+            # do nothing
+            pass
+        elif action == 1:
+            # scaling out
+            action_to_execute['horizontal'] = HORIZONTAL_SCALING_STEP
+        elif action == 2:
+            # scaling in
+            action_to_execute['horizontal'] = -HORIZONTAL_SCALING_STEP
+        elif action == 3:
+            # scaling up
+            action_to_execute['vertical'] = VERTICAL_SCALING_STEP
+        elif action == 4:
+            # scaling down
+            action_to_execute['vertical'] = -VERTICAL_SCALING_STEP
+
+        next_state, reward, _ = env.step(function_name, action_to_execute)
+
+
+
+
+
+        total_reward += reward
+
+        # print to file
+        file.write(','.join([str(j) for j in state]) + ',' + str(action_to_execute['vertical']) + ',' + str(action_to_execute['horizontal']) +
+                   ',' + str(reward) + '\n')
+        state = next_state
+        
+    file.write('total_reward: ' + str(total_reward))
+
+    print("RL policy total reward: ", total_reward)
+
+    file.close()
+    print('Trajectory generated!')
+
+
+
+
 
 
 def test_reward_function():
@@ -185,6 +297,7 @@ def main():
     test_reward_function()
     print('>>>>>>>>>> End of Task 3 <<<<<<<<<<\n')
 
+
     """
     Task 4:
     - Complete the save_checkpoint() and load_checkpoint() function (in ppo.py) for RL model checkpointing
@@ -201,6 +314,9 @@ def main():
 
     # start RL training
     agent.train()
+
+
+    generate_traces_trained(env, function_name, agent, env.arrival_rate)
 
 
 if __name__ == "__main__":

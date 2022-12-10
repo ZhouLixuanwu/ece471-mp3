@@ -83,7 +83,29 @@ def convert_state_action_to_reward(state, action, last_action, arrival_rate):
     # [Task 3.3] TODO: Implement a reward function that achieves a balance between performance and utilization
     # [Task 3.4] TODO: Add punishment to the reward which helps avoid undesired or illegal actions
     # [Your Code]
-    reward = 0
+
+    (avg_cpu_util, 
+    slo_preservation, 
+    total_cpu_shares, 
+    cpu_shares_others, 
+    num_containers, 
+    arrival_rate, 
+    latency) = state
+
+    vertical, horizontal = tuple(action.values())
+
+    vertical_last, horizontal_last = tuple(last_action.values())
+
+
+    reward = (avg_cpu_util + slo_preservation) / 2
+
+    if num_containers == 0 and horizontal < 0:
+        # illegal
+        reward = -1
+
+    if vertical < 0 and vertical_last > 0:
+        # undesired
+        reward = 0
 
     return reward
 
@@ -91,7 +113,13 @@ def convert_state_action_to_reward(state, action, last_action, arrival_rate):
 def convert_state_action_to_reward_overprovisioning(state, action, last_action, arrival_rate):
     # [Task 3.1] TODO: Implement a reward function that overprovision resources to achieve good performance
     # [Your Code]
-    reward = 0
+
+    # [value['avg_cpu_util'], value['slo_preservation'], value['total_cpu_shares']/20480.0,
+    #             value['cpu_shares_others']/92160.0, num_containers/20.0, arrival_rate/10.0, value['latency']]
+
+    slo_preservation = state[1]
+
+    reward = slo_preservation
     return reward
 
 

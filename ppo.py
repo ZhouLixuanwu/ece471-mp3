@@ -12,7 +12,7 @@ SAVE_TO_FILE = True
 
 CHECKPOINT_DIR = './checkpoints/'
 
-TOTAL_ITERATIONS = 500
+TOTAL_ITERATIONS = 5
 EPISODES_PER_ITERATION = 5
 EPISODE_LENGTH = 200
 
@@ -102,11 +102,50 @@ def calc_gae(rewards):
     return returns
 
 
-def visualization(iteration_rewards, smoothed_rewards):
+def visualization(
+    iteration_rewards, smoothed_rewards,
+    iteration_slo_preservations, smoothed_slo_preservations,
+    iteration_cpu_utils, smoothed_cpu_utils
+):
     # [Task 4.1] TODO: Write your code here to visualize the reward progression (learning curve) of the RL agent
     # [Task 4.1] TODO: Save the figure to a local file
     # [Your Code]
-    pass
+
+    def save_plot(arr, smoothed, filename, title, ylabel):
+        plt.plot(np.arange(len(arr)), arr, label='unsmoothed')
+        plt.plot(np.arange(len(smoothed)), smoothed, label='smoothed')
+        plt.title(title)
+        plt.xlabel('iteration')
+        plt.ylabel(ylabel)
+        plt.legend()
+        plt.savefig(filename)
+        plt.clf()
+
+    save_plot(
+        iteration_rewards, 
+        smoothed_rewards, 
+        'plots/rewards', 
+        'Iteration Rewards', 
+        'reward')
+
+    save_plot(
+        iteration_slo_preservations, 
+        smoothed_slo_preservations,
+        'plots/slo_pres',
+        'Iteration SLO Preservations',
+        'slo preservation')
+
+    save_plot(
+        iteration_cpu_utils, 
+        smoothed_cpu_utils,
+        'plots/cpu_utils',
+        'Iteration CPU Utilizations',
+        'cpu utilization')
+
+    
+
+
+
 
 
 class PPO:
@@ -346,7 +385,11 @@ class PPO:
 
         # plot
         if PLOT_FIG:
-            visualization(iteration_rewards, smoothed_rewards)
+            visualization(
+                iteration_rewards, smoothed_rewards,
+                iteration_slo_preservations, smoothed_slo_preservations,
+                iteration_cpu_utils, smoothed_cpu_utils
+            )
 
         # write rewards to file
         if SAVE_TO_FILE:

@@ -91,14 +91,14 @@ class SimEnvironment:
         self.arrival_rate = arrival_rate
 
         # overprovision resources to the function initially
-        # self.overprovision(function_name)
+        self.overprovision(function_name)
 
-        scale_action = {
-            'vertical': 0,
-            'horizontal': 2
-        }
-        self.num_containers += 2
-        states, _, _ = self.step(function_name, scale_action)
+        # scale_action = {
+        #     'vertical': 0,
+        #     'horizontal': 2
+        # }
+        # self.num_containers += 2
+        # states, _, _ = self.step(function_name, scale_action)
 
         self.current_state = self.get_rl_states(self.num_containers, self.arrival_rate)
 

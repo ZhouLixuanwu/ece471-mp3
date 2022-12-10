@@ -23,6 +23,16 @@ def generate_traces_trained(env, function_name, agent, arrival_rate):
         # [Your Code]
 
 
+        #the flag is a random generator to determine which of vertical_action and horizontal_action to be zero
+        flag = np.random.binomial(1, .5)
+        if flag==1:
+            vertical_action, horizontal_action = 0, np.random.randint(257)
+        else:
+            vertical_action, horizontal_action = np.random.randint(257), 0
+
+        action = {'vertical':vertical_action,'horizontal':horizontal_action}
+        next_state, reward, _ = env.step(function_name, action)
+
 
 
         total_reward += reward
