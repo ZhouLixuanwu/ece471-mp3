@@ -96,15 +96,22 @@ def convert_state_action_to_reward(state, action, last_action, arrival_rate):
 
     vertical_last, horizontal_last = tuple(last_action.values())
 
-
+    # we want to maximize both avg_cpu_util and slo_preservation,
+    # and to define a metric in (0,1]. Taking the average of the two,
+    # which are both in (0,1] achieves this, as a value of 1 is
+    # achieved if and only if avg_cpu_util = slo_preservation = 1.
     reward = (avg_cpu_util + slo_preservation) / 2
 
     if num_containers == 0 and horizontal < 0:
-        # illegal
+        # illegal action: trying to scale down
+        # containers even though there aren't any.
+        # Penalize significantly with -1 reward.
         reward = -1
 
     if vertical < 0 and vertical_last > 0:
-        # undesired
+        # undesired action: scaling up and then
+        # down immediately.
+        # Penalize moderately with 0 reward.
         reward = 0
 
     return reward
@@ -119,6 +126,9 @@ def convert_state_action_to_reward_overprovisioning(state, action, last_action, 
 
     slo_preservation = state[1]
 
+    # we want the agent to maximize SLO preservation,
+    # which is conveniently in (0,1], so we directly
+    # set the reward to it.
     reward = slo_preservation
     return reward
 
